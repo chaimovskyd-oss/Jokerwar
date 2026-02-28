@@ -239,7 +239,7 @@ button{font-family:'Rubik',sans-serif;cursor:pointer;border:none;outline:none}
 <button class="mb" id="rJoin" onclick="setRole('join')">🚪 הצטרף</button>
 </div>
 <div id="secHost">
-<button class="bp" onclick="createRoom()">✨ צור חדר</button>
+<button class="bp" id="bcr" onclick="createRoom()">✨ צור חדר</button>
 <div id="hostCreated" class="H">
 <div class="rcd" id="roomCodeShow"></div>
 <div class="st">שתף את הקוד!</div><div class="st" id="hostSt"></div>
@@ -280,7 +280,7 @@ button{font-family:'Rubik',sans-serif;cursor:pointer;border:none;outline:none}
 <div class="vsym">⚔️</div>
 <div class="bslot" id="slot2"><span class="lb" id="slbl2"></span></div>
 </div>
-<div class="gacts">
+<div class="gacts" id="gacts">
 <button class="gbtn gplay" id="btnPlay" onclick="confirmPlay()" disabled>⚔️ לחימה!</button>
 </div>
 <div class="hsec">
@@ -666,6 +666,22 @@ function applyDraftPick(jId, pi) {
 // ==================== HOT SEAT ====================
 function showHotSeat(pi, hint, cb) {
   if (isOnline()) { if (cb) cb(); return; }
+  
+  // Clear hand display BEFORE showing transition so next player can't see previous cards
+  // Only do this if game screen elements exist and are visible
+  const handArea = Q('handArea');
+  const pairHint = Q('pairHint');
+  const handLbl = Q('handLbl');
+  const jBar = Q('jBar');
+  if (handArea) handArea.innerHTML = '';
+  if (pairHint) pairHint.textContent = '';
+  if (handLbl) handLbl.textContent = '';
+  if (jBar) jBar.innerHTML = '';
+  
+  // Clear selections
+  sel1 = null;
+  sel2 = null;
+  
   Q('hsName').textContent = G.players[pi].name;
   Q('hsName').style.color = pi === 0 ? 'var(--crim)' : 'var(--sky)';
   Q('hsHint').textContent = hint || 'העבירו את המכשיר';
@@ -709,85 +725,104 @@ function getJoker(pi, name) { return G.players[pi].jokers.find(j => j.n.startsWi
 function jMult(pi, name) { return hasJoker(pi, name) ? (hasJoker(pi, 'אינפיניטי') ? 2 : 1) : 0; }
 
 // ==================== RENDER GAME ====================
+// Safe element access
+function setText(id, val) { const el = Q(id); if (el) el.textContent = val; }
+function setHtml(id, val) { const el = Q(id); if (el) el.innerHTML = val; }
+
 function renderGame() {
-  const viewAs = isOnline() ? myIdx : G.turnPlayer;
-  const p = G.players[viewAs];
-  const opp = G.players[1 - viewAs];
+  try {
+    const viewAs = isOnline() ? myIdx : G.turnPlayer;
+    if (!G.players || !G.players[viewAs]) return;
+    const p = G.players[viewAs];
+    const opp = G.players[1 - viewAs];
 
-  Q('gn1').textContent = G.players[0].name;
-  Q('gn2').textContent = G.players[1].name;
-  Q('gw1').textContent = G.players[0].wins + ' ✓';
-  Q('gw2').textContent = G.players[1].wins + ' ✓';
-  Q('gRound').textContent = `סיבוב ${G.round + 1} | חפיסה: ${G.deck.length}`;
-  Q('slbl1').textContent = G.players[0].name;
-  Q('slbl2').textContent = G.players[1].name;
+    setText('gn1', G.players[0].name);
+    setText('gn2', G.players[1].name);
+    setText('gw1', G.players[0].wins + ' ✓');
+    setText('gw2', G.players[1].wins + ' ✓');
+    setText('gRound', `סיבוב ${G.round + 1} | חפיסה: ${G.deck.length}`);
+    setText('slbl1', G.players[0].name);
+    setText('slbl2', G.players[1].name);
 
-  // Jokers bar
-  const jbar = Q('jBar');
-  jbar.innerHTML = '';
-  for (let j of p.jokers) {
-    const d = document.createElement('div');
-    d.className = 'mj' + (j.used ? ' U' : '');
-    d.innerHTML = `<span>${j.ic}</span><span>${j.n}</span>`;
-    jbar.appendChild(d);
-  }
+    // Jokers bar
+    const jbar = Q('jBar');
+    jbar.innerHTML = '';
+    for (let j of p.jokers) {
+      const d = document.createElement('div');
+      d.className = 'mj' + (j.used ? ' U' : '');
+      d.innerHTML = `<span>${j.ic}</span><span>${j.n}</span>`;
+      jbar.appendChild(d);
+    }
 
-  // Battle slots
-  for (let i = 0; i < 2; i++) {
-    const slot = Q(i === 0 ? 'slot1' : 'slot2');
-    if (G.picks[i]) {
-      slot.className = 'bslot F';
-      slot.innerHTML = '<div class="cback"></div><span class="lb">' + G.players[i].name + '</span>';
+    // Battle slots
+    for (let i = 0; i < 2; i++) {
+      const slot = Q(i === 0 ? 'slot1' : 'slot2');
+      if (!slot) continue;
+      if (G.picks[i]) {
+        slot.className = 'bslot F';
+        slot.innerHTML = '<div class="cback"></div><span class="lb">' + G.players[i].name + '</span>';
+      } else {
+        slot.className = 'bslot';
+        slot.innerHTML = '<span style="color:var(--t3)">?</span><span class="lb">' + G.players[i].name + '</span>';
+      }
+    }
+
+    // Spy joker
+    if (hasJoker(viewAs, 'מרגל') && opp.hand.length && !G.spySeen) {
+      G.spySeen = true;
+      setText('spyTxt', 'קלף של ' + opp.name + ':');
+      const spyC = Q('spyCards');
+      if (spyC) { spyC.innerHTML = ''; spyC.appendChild(buildCardEl(opp.hand[0], -1)); }
+      const spyOv = Q('spyOv');
+      if (spyOv) spyOv.classList.add('A');
+    }
+
+    // Chaos joker
+    if (hasJoker(viewAs, 'כאוס') && p.hand.length >= 2) {
+      const normals = p.hand.filter(c => c.type === 'normal');
+      if (normals.length >= 2) {
+        const i1 = Math.floor(Math.random() * normals.length);
+        let i2 = Math.floor(Math.random() * normals.length);
+        while (i2 === i1) i2 = Math.floor(Math.random() * normals.length);
+        [normals[i1].value, normals[i2].value] = [normals[i2].value, normals[i1].value];
+      }
+    }
+
+    // Supreme power
+    p.hand.forEach(c => delete c._sup);
+    if (hasJoker(viewAs, 'כוח עליון') && p.hand.length) {
+      let minC = p.hand[0];
+      for (let c of p.hand) if (c.value < minC.value) minC = c;
+      minC._sup = 15;
+    }
+
+    // Render hand
+    renderHand(p, viewAs);
+
+    // Pair hint
+    if (sel2) {
+      setText('pairHint', `👥 זוג ${cardName(sel1)} = ${sel1.value * 2}!`);
+    } else if (sel1) {
+      setText('pairHint', `נבחר ${cardName(sel1)} — בחר עוד קלף זהה לזוג, או לחץ לחימה`);
     } else {
-      slot.className = 'bslot';
-      slot.innerHTML = '<span style="color:var(--t3)">?</span><span class="lb">' + G.players[i].name + '</span>';
+      setText('pairHint', 'בחר קלף (או שניים זהים לזוג)');
     }
-  }
 
-  // Spy joker
-  if (hasJoker(viewAs, 'מרגל') && opp.hand.length && !G.spySeen) {
-    G.spySeen = true;
-    Q('spyTxt').textContent = 'קלף של ' + opp.name + ':';
-    Q('spyCards').innerHTML = '';
-    Q('spyCards').appendChild(buildCardEl(opp.hand[0], -1));
-    Q('spyOv').classList.add('A');
-  }
+    setText('handLbl', 'היד של ' + p.name);
 
-  // Chaos joker - swap 2 card values
-  if (hasJoker(viewAs, 'כאוס') && p.hand.length >= 2) {
-    const normals = p.hand.filter(c => c.type === 'normal');
-    if (normals.length >= 2) {
-      const i1 = Math.floor(Math.random() * normals.length);
-      let i2 = Math.floor(Math.random() * normals.length);
-      while (i2 === i1) i2 = Math.floor(Math.random() * normals.length);
-      [normals[i1].value, normals[i2].value] = [normals[i2].value, normals[i1].value];
+    const canPlay = !isOnline() || !G.picks[myIdx];
+    Q('btnPlay').disabled = !sel1 || !canPlay;
+    
+    const gacts = Q('gacts');
+    if (gacts) {
+      gacts.style.opacity = canPlay ? 1 : 0.4;
+      gacts.style.pointerEvents = canPlay ? 'auto' : 'none';
     }
-  }
 
-  // Supreme power - lowest = 15
-  p.hand.forEach(c => delete c._sup);
-  if (hasJoker(viewAs, 'כוח עליון') && p.hand.length) {
-    let minC = p.hand[0];
-    for (let c of p.hand) if (c.value < minC.value) minC = c;
-    minC._sup = 15;
-  }
-
-  // Render hand
-  renderHand(p, viewAs);
-
-  // Pair hint
-  Q('pairHint').textContent = sel1 ? `נבחר ${cardName(sel1)} — בחר עוד קלף או לחץ לחימה` : 'בחר קלף (או שניים עם אותו מספר לזוג)';
-
-  Q('handLbl').textContent = 'היד של ' + p.name;
-
-  const canPlay = !isOnline() || !G.picks[myIdx];
-  Q('btnPlay').disabled = !sel1 || !canPlay;
-  Q('gacts').style.opacity = canPlay ? 1 : 0.4;
-  Q('gacts').style.pointerEvents = canPlay ? 'auto' : 'none';
-
-  if (isOnline() && G.picks[myIdx] && !G.picks[1 - myIdx]) {
-    announce('ממתין ליריב...');
-  }
+    if (isOnline() && G.picks[myIdx] && !G.picks[1 - myIdx]) {
+      announce('ממתין ליריב...');
+    }
+  } catch(e) { console.error('renderGame error:', e); }
 }
 
 function cardName(card) {
@@ -868,38 +903,59 @@ function calcBonus(card, pi) {
 
 // ==================== CARD SELECTION ====================
 function selectCard(card, pi) {
-  // If this card is already sel1, deselect it
-  if (sel1 && sel1.id === card.id) {
-    sel1 = sel2; sel2 = null;
-    renderGame();
-    return;
-  }
-  // If this card is already sel2, deselect it
-  if (sel2 && sel2.id === card.id) {
-    sel2 = null;
-    renderGame();
-    return;
-  }
+  try {
+    // If this card is already sel1, deselect it
+    if (sel1 && sel1.id === card.id) {
+      sel1 = sel2; sel2 = null;
+      updateUI();
+      return;
+    }
+    // If this card is already sel2, deselect it
+    if (sel2 && sel2.id === card.id) {
+      sel2 = null;
+      updateUI();
+      return;
+    }
 
-  if (!sel1) {
-    // First pick
-    sel1 = card;
-  } else if (!sel2) {
-    // Second pick — only if same value (pair) and both normal
-    if (sel1.type === 'normal' && card.type === 'normal' && sel1.value === card.value && sel1.id !== card.id) {
-      sel2 = card;
+    if (!sel1) {
+      sel1 = card;
+    } else if (!sel2) {
+      // Second pick — only if same value (pair) and both normal
+      if (sel1.type === 'normal' && card.type === 'normal' && sel1.value === card.value && sel1.id !== card.id) {
+        sel2 = card;
+      } else {
+        sel1 = card;
+        sel2 = null;
+      }
     } else {
-      // Replace first selection
       sel1 = card;
       sel2 = null;
     }
-  } else {
-    // Already have pair — start over
-    sel1 = card;
-    sel2 = null;
-  }
+    updateUI();
+  } catch(e) { console.error('selectCard error:', e); }
+}
 
-  renderGame();
+function updateUI() {
+  // Update hand highlights
+  const viewAs = isOnline() ? myIdx : G.turnPlayer;
+  if (!G.players || !G.players[viewAs]) return;
+  renderHand(G.players[viewAs], viewAs);
+  
+  // Update hint
+  if (sel2) {
+    setText('pairHint', `👥 זוג ${cardName(sel1)} = ${sel1.value * 2}!`);
+  } else if (sel1) {
+    setText('pairHint', `נבחר ${cardName(sel1)} — בחר עוד קלף זהה לזוג, או לחץ לחימה`);
+  } else {
+    setText('pairHint', 'בחר קלף (או שניים זהים לזוג)');
+  }
+  
+  // Enable/disable play button
+  const btnPlay = Q('btnPlay');
+  if (btnPlay) {
+    const canPlay = !isOnline() || !G.picks[myIdx];
+    btnPlay.disabled = !sel1 || !canPlay;
+  }
 }
 
 // ==================== PLAY ====================
