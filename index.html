@@ -1,0 +1,1820 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>⚔️ מלחמת הג'וקרים</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800;900&family=Secular+One&display=swap" rel="stylesheet">
+<style>
+:root {
+  --crimson: #DC2626;
+  --ember: #F97316;
+  --gold: #F59E0B;
+  --emerald: #10B981;
+  --sky: #0EA5E9;
+  --indigo: #6366F1;
+  --violet: #8B5CF6;
+  --rose: #EC4899;
+  --bg-primary: #0C0A1A;
+  --bg-card: #161230;
+  --bg-elevated: #1E1848;
+  --bg-surface: #251F5A;
+  --text-primary: #F1EEFF;
+  --text-secondary: #9B93C9;
+  --text-dim: #6B619E;
+  --border-subtle: rgba(255,255,255,0.06);
+  --border-glow: rgba(99, 102, 241, 0.4);
+  --suit-heart: #EF4444;
+  --suit-diamond: #F59E0B;
+  --suit-spade: #8B5CF6;
+  --suit-club: #10B981;
+  --elem-fire: #EF4444;
+  --elem-water: #3B82F6;
+  --elem-ice: #67E8F9;
+  --elem-wind: #A3E635;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overflow: hidden; }
+
+body {
+  font-family: 'Rubik', sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  background-image:
+    radial-gradient(ellipse at 15% 80%, rgba(99,102,241,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 85% 20%, rgba(236,72,153,0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(139,92,246,0.04) 0%, transparent 60%);
+}
+
+button { font-family: 'Rubik', sans-serif; cursor: pointer; border: none; outline: none; }
+
+.hidden { display: none !important; }
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--violet); border-radius: 3px; }
+
+/* ===== SCREENS ===== */
+.screen {
+  position: fixed; inset: 0;
+  display: none; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 20px;
+  overflow-y: auto;
+}
+.screen.active { display: flex; }
+
+/* ===== MAIN MENU ===== */
+.logo {
+  font-family: 'Secular One', sans-serif;
+  font-size: clamp(2.2rem, 7vw, 4rem);
+  text-align: center;
+  background: linear-gradient(135deg, var(--crimson), var(--gold), var(--emerald), var(--sky));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 30px rgba(99,102,241,0.3));
+  animation: float 4s ease-in-out infinite;
+  margin-bottom: 5px;
+}
+
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.tagline { color: var(--text-secondary); font-size: 1rem; margin-bottom: 30px; text-align: center; }
+
+.menu-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 20px;
+  padding: 24px;
+  width: min(420px, 92vw);
+  margin-bottom: 15px;
+}
+
+.menu-card h3 {
+  font-size: 1rem; color: var(--rose); margin-bottom: 14px;
+  display: flex; align-items: center; gap: 8px;
+}
+
+.mode-buttons { display: flex; gap: 10px; margin-bottom: 10px; }
+
+.mode-btn {
+  flex: 1; padding: 14px 10px; border-radius: 14px;
+  background: rgba(255,255,255,0.04); border: 2px solid var(--border-subtle);
+  color: var(--text-primary); font-weight: 600; font-size: 0.9rem;
+  transition: all 0.25s; text-align: center;
+}
+.mode-btn.selected {
+  background: var(--indigo); border-color: var(--indigo);
+  box-shadow: 0 0 25px rgba(99,102,241,0.35);
+}
+.mode-btn:hover:not(.selected) { border-color: rgba(255,255,255,0.15); }
+
+.name-row {
+  display: flex; align-items: center; gap: 10px; margin: 8px 0;
+}
+.name-dot {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; color: white; flex-shrink: 0; font-weight: 700;
+}
+.name-input {
+  flex: 1; padding: 10px 14px; border-radius: 12px;
+  background: rgba(255,255,255,0.06); border: 1px solid var(--border-subtle);
+  color: var(--text-primary); font-family: 'Rubik', sans-serif; font-size: 0.95rem;
+}
+.name-input:focus { border-color: var(--indigo); outline: none; }
+.name-input::placeholder { color: var(--text-dim); }
+
+/* Room code */
+.room-section { margin-top: 10px; }
+.room-code-display {
+  font-family: 'Secular One', monospace; font-size: 2rem; letter-spacing: 6px;
+  text-align: center; color: var(--gold); padding: 10px;
+  background: rgba(245,158,11,0.08); border-radius: 12px; margin: 8px 0;
+  border: 1px dashed rgba(245,158,11,0.3);
+}
+.room-input-row { display: flex; gap: 8px; }
+.room-input {
+  flex: 1; padding: 12px; border-radius: 12px; text-align: center;
+  background: rgba(255,255,255,0.06); border: 1px solid var(--border-subtle);
+  color: var(--text-primary); font-family: 'Secular One', monospace;
+  font-size: 1.5rem; letter-spacing: 4px;
+}
+.room-input:focus { border-color: var(--gold); outline: none; }
+
+.btn-primary {
+  width: 100%; padding: 15px; border-radius: 50px;
+  background: linear-gradient(135deg, var(--indigo), var(--violet));
+  color: white; font-weight: 700; font-size: 1.1rem;
+  transition: all 0.3s; margin-top: 8px;
+  box-shadow: 0 4px 20px rgba(99,102,241,0.3);
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(99,102,241,0.5); }
+
+.btn-secondary {
+  width: 100%; padding: 12px; border-radius: 50px;
+  background: rgba(255,255,255,0.06); border: 1px solid var(--border-subtle);
+  color: var(--text-primary); font-weight: 600; font-size: 0.95rem;
+  transition: all 0.2s; margin-top: 6px;
+}
+.btn-secondary:hover { background: rgba(255,255,255,0.1); }
+
+.status-text { text-align: center; color: var(--text-secondary); font-size: 0.85rem; margin-top: 8px; }
+
+/* ===== DRAFT SCREEN ===== */
+#draft-screen { justify-content: flex-start; padding-top: 15px; }
+
+.draft-header { text-align: center; margin-bottom: 10px; }
+.draft-header h2 { font-family: 'Secular One', sans-serif; font-size: 1.5rem; margin-bottom: 4px; }
+.draft-turn { color: var(--gold); font-weight: 600; font-size: 1rem; }
+.draft-instruction { color: var(--text-secondary); font-size: 0.85rem; margin-top: 4px; }
+
+.draft-pool {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px; width: min(600px, 95vw); margin: 10px 0;
+  max-height: 55vh; overflow-y: auto; padding: 5px;
+}
+
+.joker-card {
+  background: var(--bg-elevated); border: 2px solid var(--border-subtle);
+  border-radius: 14px; padding: 12px; cursor: pointer;
+  transition: all 0.25s; position: relative;
+}
+.joker-card:hover { border-color: var(--indigo); transform: translateY(-3px); }
+.joker-card.selected { border-color: var(--gold); box-shadow: 0 0 20px rgba(245,158,11,0.3); }
+.joker-card.taken { opacity: 0.3; pointer-events: none; }
+
+.joker-icon { font-size: 1.8rem; text-align: center; margin-bottom: 4px; }
+.joker-name { font-weight: 700; font-size: 0.8rem; text-align: center; margin-bottom: 4px; }
+.joker-desc { font-size: 0.65rem; color: var(--text-secondary); text-align: center; line-height: 1.4; }
+.joker-rarity {
+  position: absolute; top: 6px; left: 6px; font-size: 0.55rem;
+  padding: 2px 6px; border-radius: 6px; font-weight: 600;
+}
+.rarity-common { background: rgba(16,185,129,0.2); color: var(--emerald); }
+.rarity-rare { background: rgba(14,165,233,0.2); color: var(--sky); }
+.rarity-legendary { background: rgba(245,158,11,0.2); color: var(--gold); }
+.rarity-element { background: rgba(236,72,153,0.2); color: var(--rose); }
+
+.draft-my-picks {
+  display: flex; gap: 8px; justify-content: center;
+  margin: 8px 0; flex-wrap: wrap;
+}
+.draft-pick-slot {
+  width: 50px; height: 50px; border-radius: 12px;
+  border: 2px dashed var(--border-subtle); display: flex;
+  align-items: center; justify-content: center; font-size: 1.5rem;
+  background: var(--bg-card);
+}
+.draft-pick-slot.filled { border-style: solid; border-color: var(--gold); }
+
+.btn-confirm-draft {
+  padding: 12px 40px; border-radius: 50px;
+  background: linear-gradient(135deg, var(--gold), var(--ember));
+  color: #1a1a2e; font-weight: 700; font-size: 1rem;
+  transition: all 0.3s; margin-top: 5px;
+}
+.btn-confirm-draft:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-confirm-draft:not(:disabled):hover { transform: translateY(-2px); }
+
+/* ===== HOT SEAT TRANSITION ===== */
+.transition-overlay {
+  position: fixed; inset: 0; z-index: 500;
+  background: rgba(12,10,26,0.97); backdrop-filter: blur(10px);
+  display: none; flex-direction: column;
+  align-items: center; justify-content: center; gap: 15px;
+}
+.transition-overlay.active { display: flex; }
+.transition-overlay h2 { font-family: 'Secular One', sans-serif; font-size: 1.8rem; }
+.transition-name { font-size: 1.4rem; font-weight: 700; }
+.transition-hint { color: var(--text-secondary); font-size: 0.9rem; text-align: center; max-width: 300px; }
+.btn-reveal {
+  padding: 14px 40px; border-radius: 50px;
+  background: linear-gradient(135deg, var(--emerald), #059669);
+  color: white; font-weight: 700; font-size: 1.1rem;
+  transition: all 0.2s; margin-top: 10px;
+}
+.btn-reveal:hover { transform: scale(1.05); }
+
+/* ===== GAME SCREEN ===== */
+#game-screen { padding: 8px; justify-content: space-between; gap: 6px; }
+
+.game-top {
+  width: 100%; display: flex; justify-content: space-between; align-items: center;
+  background: var(--bg-card); border-radius: 14px; padding: 8px 14px;
+}
+.player-score-box { display: flex; align-items: center; gap: 8px; }
+.score-avatar {
+  width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.9rem; color: white; font-weight: 700;
+}
+.score-info { font-size: 0.8rem; }
+.score-info .sname { font-weight: 600; }
+.score-info .swins { color: var(--gold); font-weight: 700; }
+.score-vs { font-family: 'Secular One', sans-serif; color: var(--text-dim); font-size: 0.9rem; }
+
+.round-info {
+  text-align: center; font-size: 0.8rem; color: var(--text-secondary);
+}
+
+/* Jokers display */
+.jokers-bar {
+  width: 100%; display: flex; justify-content: center; gap: 6px; flex-wrap: wrap;
+}
+.mini-joker {
+  background: var(--bg-elevated); border-radius: 10px; padding: 4px 8px;
+  font-size: 0.7rem; display: flex; align-items: center; gap: 4px;
+  border: 1px solid var(--border-subtle); position: relative;
+}
+.mini-joker.used { opacity: 0.35; text-decoration: line-through; }
+.mini-joker.activatable { border-color: var(--gold); cursor: pointer; animation: glowPulse 2s infinite; }
+
+@keyframes glowPulse {
+  0%,100% { box-shadow: 0 0 5px rgba(245,158,11,0.2); }
+  50% { box-shadow: 0 0 15px rgba(245,158,11,0.5); }
+}
+
+/* Battle area */
+.battle-area {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  gap: 30px; width: 100%; min-height: 0; position: relative;
+}
+
+.battle-slot {
+  width: 100px; height: 145px; border-radius: 16px;
+  border: 2px dashed var(--border-subtle); display: flex;
+  flex-direction: column; align-items: center; justify-content: center;
+  transition: all 0.3s; position: relative;
+}
+.battle-slot.filled { border: none; }
+.battle-slot .slot-label {
+  font-size: 0.7rem; color: var(--text-dim); position: absolute; bottom: -20px;
+}
+
+.vs-symbol {
+  font-family: 'Secular One', sans-serif; font-size: 1.5rem;
+  color: var(--text-dim); flex-shrink: 0;
+}
+
+/* Cards */
+.card {
+  width: 100px; height: 145px; border-radius: 16px; position: relative;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  font-weight: 700; transition: all 0.3s; cursor: pointer;
+  border: 2px solid rgba(255,255,255,0.1);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+.card:hover { transform: translateY(-8px) scale(1.02); z-index: 10; }
+.card.not-playable { opacity: 0.45; cursor: default; }
+.card.not-playable:hover { transform: none; }
+.card.card-selected { border-color: var(--gold); box-shadow: 0 0 25px rgba(245,158,11,0.5); transform: translateY(-12px); }
+
+.card-suit { position: absolute; top: 6px; right: 8px; font-size: 0.9rem; }
+.card-suit-bl { position: absolute; bottom: 6px; left: 8px; font-size: 0.9rem; }
+.card-value { font-size: 2rem; }
+.card-value-sm { font-size: 1.5rem; }
+.card-label { font-size: 0.6rem; margin-top: 2px; }
+.card-bonus { 
+  position: absolute; top: -8px; left: -8px; 
+  background: var(--gold); color: #1a1a2e; 
+  font-size: 0.65rem; font-weight: 800; padding: 2px 6px;
+  border-radius: 8px; box-shadow: 0 2px 8px rgba(245,158,11,0.5);
+}
+
+.card-heart { background: linear-gradient(145deg, #7f1d1d, #991b1b); }
+.card-diamond { background: linear-gradient(145deg, #78350f, #92400e); }
+.card-spade { background: linear-gradient(145deg, #312e81, #3730a3); }
+.card-club { background: linear-gradient(145deg, #064e3b, #065f46); }
+.card-fire { background: linear-gradient(145deg, #991b1b, #dc2626); }
+.card-water { background: linear-gradient(145deg, #1e3a5f, #2563eb); }
+.card-ice { background: linear-gradient(145deg, #164e63, #0891b2); }
+.card-wind { background: linear-gradient(145deg, #365314, #65a30d); }
+
+.card-back {
+  width: 100px; height: 145px; border-radius: 16px;
+  background: linear-gradient(135deg, var(--bg-surface), var(--bg-elevated));
+  border: 2px solid var(--border-subtle); display: flex;
+  align-items: center; justify-content: center;
+}
+.card-back::after { content: '🃏'; font-size: 2.5rem; opacity: 0.3; }
+
+/* Hand */
+.hand-section { width: 100%; }
+.hand-label { font-size: 0.75rem; color: var(--text-dim); text-align: center; margin-bottom: 4px; }
+.hand-cards {
+  display: flex; gap: 8px; justify-content: center;
+  padding: 5px 10px; flex-wrap: wrap;
+}
+.hand-cards .card { width: 80px; height: 116px; }
+.hand-cards .card .card-value { font-size: 1.6rem; }
+.hand-cards .card .card-suit { font-size: 0.75rem; top: 4px; right: 6px; }
+.hand-cards .card .card-suit-bl { font-size: 0.75rem; bottom: 4px; left: 6px; }
+
+/* Action bar */
+.game-actions {
+  display: flex; gap: 8px; justify-content: center; width: 100%;
+  flex-wrap: wrap;
+}
+.btn-game {
+  padding: 10px 22px; border-radius: 12px;
+  font-weight: 700; font-size: 0.85rem; transition: all 0.2s;
+  display: flex; align-items: center; gap: 5px;
+}
+.btn-play {
+  background: linear-gradient(135deg, var(--indigo), var(--violet));
+  color: white;
+}
+.btn-play:disabled { opacity: 0.3; cursor: not-allowed; }
+.btn-play:not(:disabled):hover { transform: translateY(-2px); }
+.btn-pair {
+  background: linear-gradient(135deg, var(--gold), var(--ember));
+  color: #1a1a2e;
+}
+.btn-pair:disabled { opacity: 0.3; cursor: not-allowed; }
+.btn-ace {
+  background: linear-gradient(135deg, var(--rose), var(--crimson));
+  color: white; font-size: 0.8rem;
+}
+
+/* ===== BATTLE RESULT OVERLAY ===== */
+.result-overlay {
+  position: fixed; inset: 0; z-index: 400;
+  background: rgba(12,10,26,0.92); backdrop-filter: blur(8px);
+  display: none; flex-direction: column;
+  align-items: center; justify-content: center; gap: 12px;
+}
+.result-overlay.active { display: flex; }
+
+.result-cards { display: flex; align-items: center; gap: 20px; margin: 10px 0; }
+.result-card-wrap { text-align: center; }
+.result-card-wrap .rname { font-size: 0.85rem; margin-bottom: 5px; font-weight: 600; }
+.result-card-wrap .rval { font-size: 0.8rem; color: var(--text-secondary); margin-top: 5px; }
+.result-vs { font-family: 'Secular One', sans-serif; font-size: 1.3rem; color: var(--text-dim); }
+.result-text {
+  font-family: 'Secular One', sans-serif; font-size: 1.8rem;
+  margin-top: 5px;
+}
+.result-detail { color: var(--text-secondary); font-size: 0.85rem; text-align: center; max-width: 350px; line-height: 1.5; }
+.btn-continue {
+  padding: 12px 35px; border-radius: 50px;
+  background: var(--indigo); color: white; font-weight: 700; font-size: 0.95rem;
+  transition: all 0.2s; margin-top: 5px;
+}
+.btn-continue:hover { transform: translateY(-2px); }
+
+/* ===== ACE CHOICE MODAL ===== */
+.ace-modal {
+  position: fixed; inset: 0; z-index: 600;
+  background: rgba(12,10,26,0.95); display: none;
+  flex-direction: column; align-items: center; justify-content: center; gap: 15px;
+}
+.ace-modal.active { display: flex; }
+.ace-modal h3 { font-family: 'Secular One', sans-serif; font-size: 1.3rem; }
+.ace-options { display: flex; gap: 15px; }
+.ace-opt {
+  padding: 18px 30px; border-radius: 16px;
+  background: var(--bg-elevated); border: 2px solid var(--border-subtle);
+  color: var(--text-primary); font-size: 1.5rem; font-weight: 800;
+  transition: all 0.2s;
+}
+.ace-opt:hover { border-color: var(--gold); transform: scale(1.1); }
+
+/* ===== GAME OVER ===== */
+#gameover-screen { gap: 20px; }
+.go-title {
+  font-family: 'Secular One', sans-serif;
+  font-size: clamp(2rem, 6vw, 3rem);
+}
+.go-winner { font-size: 1.5rem; font-weight: 700; }
+.go-score { color: var(--text-secondary); font-size: 1.1rem; }
+
+.confetti-box { position: fixed; inset: 0; pointer-events: none; z-index: 300; overflow: hidden; }
+.confetti-p {
+  position: absolute; top: -10px; width: 10px; height: 10px;
+  animation: cfall linear forwards;
+}
+@keyframes cfall {
+  0% { transform: translateY(0) rotate(0); opacity:1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity:0; }
+}
+
+/* ===== ANNOUNCEMENT ===== */
+.announce {
+  position: fixed; top: 50%; left: 50%;
+  transform: translate(-50%,-50%) scale(0);
+  background: rgba(0,0,0,0.9); border: 2px solid var(--indigo);
+  color: white; padding: 16px 35px; border-radius: 18px;
+  font-weight: 700; font-size: 1.2rem; z-index: 450;
+  pointer-events: none; text-align: center;
+  font-family: 'Secular One', sans-serif;
+}
+.announce.show {
+  animation: annIn 0.35s ease-out forwards, annOut 0.35s ease-in 1.4s forwards;
+}
+@keyframes annIn { 0%{transform:translate(-50%,-50%) scale(0);} 100%{transform:translate(-50%,-50%) scale(1);} }
+@keyframes annOut { 0%{transform:translate(-50%,-50%) scale(1);opacity:1;} 100%{transform:translate(-50%,-50%) scale(0.5);opacity:0;} }
+
+/* ===== RULES BUTTON ===== */
+.rules-float {
+  position: fixed; top: 10px; left: 10px; z-index: 100;
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(255,255,255,0.08); color: var(--text-primary);
+  font-size: 1rem; display: flex; align-items: center; justify-content: center;
+}
+.rules-float:hover { background: rgba(255,255,255,0.15); }
+
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 700;
+  background: rgba(12,10,26,0.95); display: none;
+  align-items: center; justify-content: center; padding: 20px;
+}
+.modal-overlay.active { display: flex; }
+.modal-box {
+  background: var(--bg-card); border-radius: 20px;
+  padding: 25px; max-width: 500px; width: 100%;
+  max-height: 85vh; overflow-y: auto; border: 1px solid var(--border-subtle);
+}
+.modal-box h2 { font-family: 'Secular One', sans-serif; font-size: 1.3rem; margin-bottom: 12px; text-align: center; }
+.modal-box h3 { color: var(--rose); font-size: 0.95rem; margin: 12px 0 6px; }
+.modal-box p { font-size: 0.85rem; line-height: 1.6; color: var(--text-secondary); }
+.rule-item {
+  background: rgba(255,255,255,0.03); border-radius: 10px; padding: 8px 12px;
+  margin: 5px 0; border-right: 3px solid var(--violet); font-size: 0.8rem;
+  line-height: 1.5;
+}
+.btn-close-modal {
+  margin-top: 15px; padding: 10px 25px; border-radius: 12px;
+  background: var(--violet); color: white; font-weight: 600;
+  display: block; margin-left: auto; margin-right: auto;
+}
+
+/* ===== SPY REVEAL ===== */
+.spy-overlay {
+  position: fixed; inset: 0; z-index: 550;
+  background: rgba(12,10,26,0.95); display: none;
+  flex-direction: column; align-items: center; justify-content: center; gap: 15px;
+}
+.spy-overlay.active { display: flex; }
+.spy-card-row { display: flex; gap: 10px; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 450px) {
+  .card { width: 85px; height: 122px; }
+  .card .card-value { font-size: 1.7rem; }
+  .hand-cards .card { width: 65px; height: 95px; }
+  .hand-cards .card .card-value { font-size: 1.3rem; }
+  .battle-area { gap: 15px; }
+  .draft-pool { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+}
+</style>
+</head>
+<body>
+
+<button class="rules-float" onclick="toggleRules()">❓</button>
+<div class="announce hidden" id="announce"></div>
+
+<!-- ===== RULES MODAL ===== -->
+<div class="modal-overlay" id="rules-modal">
+<div class="modal-box">
+<h2>📖 חוקי מלחמת הג'וקרים</h2>
+<h3>🎯 מטרה</h3>
+<p>לנצח ביותר סיבובי קרב עד שנגמרים הקלפים!</p>
+<h3>📋 מהלך המשחק</h3>
+<div class="rule-item">כל שחקן מתחיל עם 5 קלפים. בכל סיבוב בוחרים קלף אחד (או זוג). הגבוה מנצח.</div>
+<div class="rule-item">אחרי כל סיבוב, שני השחקנים משלימים חזרה ל-5 קלפים מהחפיסה.</div>
+<div class="rule-item">כשהחפיסה נגמרת, משחקים עם מה שנשאר. מי שניצח ביותר סיבובים מנצח!</div>
+<h3>🃏 אס (1)</h3>
+<div class="rule-item">אס הוא מיוחד — בוחרים אם הוא שווה 1 (הנמוך) או 14 (הגבוה ביותר)!</div>
+<h3>👥 זוגות</h3>
+<div class="rule-item">שני קלפים עם אותו מספר — ניתן לשחק ביחד. הערך = סכום שניהם. חזק אבל מבזבז 2 קלפים!</div>
+<h3>🔥 קלפי אלמנט</h3>
+<div class="rule-item">ערך בסיס 7. אש🔥 > קרח❄️ > רוח🌪️ > מים💧 > אש🔥. המנצח מקבל +5 (=12), המפסיד יורד ל-2.</div>
+<div class="rule-item">🔥 אש: היריב מאבד קלף נוסף | 💧 מים: שולפים קלף נוסף | ❄️ קרח: היריב משחק בעיוור | 🌪️ רוח: היריב מחליף קלף</div>
+<h3>🃏 ג'וקרים</h3>
+<div class="rule-item">כל שחקן בוחר 3 ג'וקרים בדראפט. הם פעילים כל המשחק ומשנים את חוקי הקרב!</div>
+<button class="btn-close-modal" onclick="toggleRules()">סגור ✖</button>
+</div>
+</div>
+
+<!-- ===== MAIN MENU ===== -->
+<div class="screen active" id="menu-screen">
+  <div class="logo">⚔️ מלחמת הג'וקרים</div>
+  <div class="tagline">משחק קלפים אסטרטגי עם ג'וקרים מטורפים</div>
+
+  <div class="menu-card">
+    <h3>🎮 מצב משחק</h3>
+    <div class="mode-buttons">
+      <button class="mode-btn selected" id="mode-local" onclick="setMode('local')">📱 מכשיר אחד</button>
+      <button class="mode-btn" id="mode-online" onclick="setMode('online')">🌐 אונליין</button>
+    </div>
+  </div>
+
+  <div class="menu-card" id="names-card">
+    <h3>👤 שמות שחקנים</h3>
+    <div class="name-row">
+      <div class="name-dot" style="background:var(--crimson)">1</div>
+      <input class="name-input" id="p1name" placeholder="שחקן 1" maxlength="12">
+    </div>
+    <div class="name-row" id="p2name-row">
+      <div class="name-dot" style="background:var(--sky)">2</div>
+      <input class="name-input" id="p2name" placeholder="שחקן 2" maxlength="12">
+    </div>
+  </div>
+
+  <div class="menu-card hidden" id="online-card">
+    <h3>🌐 חדר משחק</h3>
+    <div class="mode-buttons">
+      <button class="mode-btn selected" id="role-create" onclick="setRole('create')">🏠 צור חדר</button>
+      <button class="mode-btn" id="role-join" onclick="setRole('join')">🚪 הצטרף</button>
+    </div>
+    <div id="create-section">
+      <div class="name-row">
+        <div class="name-dot" style="background:var(--crimson)">1</div>
+        <input class="name-input" id="online-name" placeholder="השם שלך" maxlength="12">
+      </div>
+      <button class="btn-primary" onclick="createRoom()">✨ צור חדר</button>
+      <div id="room-created" class="hidden">
+        <div class="room-code-display" id="room-code-display"></div>
+        <div class="status-text">ממתין לשחקן שני...</div>
+        <div class="status-text" id="online-status"></div>
+      </div>
+    </div>
+    <div id="join-section" class="hidden">
+      <div class="name-row">
+        <div class="name-dot" style="background:var(--sky)">2</div>
+        <input class="name-input" id="join-name" placeholder="השם שלך" maxlength="12">
+      </div>
+      <div class="room-input-row">
+        <input class="room-input" id="room-code-input" placeholder="קוד חדר" maxlength="6">
+        <button class="btn-primary" style="width:auto;padding:12px 20px;" onclick="joinRoom()">🚀</button>
+      </div>
+      <div class="status-text" id="join-status"></div>
+    </div>
+  </div>
+
+  <button class="btn-primary" id="btn-start-local" onclick="startLocalGame()" style="width:min(420px,92vw);">⚔️ התחל משחק!</button>
+</div>
+
+<!-- ===== DRAFT SCREEN ===== -->
+<div class="screen" id="draft-screen">
+  <div class="draft-header">
+    <h2>🃏 דראפט ג'וקרים</h2>
+    <div class="draft-turn" id="draft-turn"></div>
+    <div class="draft-instruction">בחר ג'וקר אחד</div>
+  </div>
+  <div class="draft-my-picks" id="draft-picks"></div>
+  <div class="draft-pool" id="draft-pool"></div>
+  <button class="btn-confirm-draft" id="btn-draft-confirm" onclick="confirmDraft()" disabled>אשר בחירה ✓</button>
+</div>
+
+<!-- ===== HOT SEAT TRANSITION ===== -->
+<div class="transition-overlay" id="hotseat-transition">
+  <h2>🎴 התור של:</h2>
+  <div class="transition-name" id="transition-name"></div>
+  <div class="transition-hint" id="transition-hint"></div>
+  <button class="btn-reveal" onclick="revealTurn()">👀 מוכן — חשוף קלפים</button>
+</div>
+
+<!-- ===== GAME SCREEN ===== -->
+<div class="screen" id="game-screen">
+  <div class="game-top">
+    <div class="player-score-box">
+      <div class="score-avatar" id="score-av1" style="background:var(--crimson)">1</div>
+      <div class="score-info"><div class="sname" id="sname1"></div><div class="swins" id="swins1">0 ✓</div></div>
+    </div>
+    <div>
+      <div class="score-vs">VS</div>
+      <div class="round-info" id="round-info"></div>
+    </div>
+    <div class="player-score-box">
+      <div class="score-info" style="text-align:left;"><div class="sname" id="sname2"></div><div class="swins" id="swins2">0 ✓</div></div>
+      <div class="score-avatar" id="score-av2" style="background:var(--sky)">2</div>
+    </div>
+  </div>
+
+  <div class="jokers-bar" id="jokers-bar"></div>
+
+  <div class="battle-area">
+    <div class="battle-slot" id="battle-p1"><span class="slot-label" id="blabel1"></span></div>
+    <div class="vs-symbol">⚔️</div>
+    <div class="battle-slot" id="battle-p2"><span class="slot-label" id="blabel2"></span></div>
+  </div>
+
+  <div class="game-actions" id="game-actions">
+    <button class="btn-game btn-play" id="btn-play" onclick="confirmPlay()" disabled>⚔️ לחימה!</button>
+    <button class="btn-game btn-pair hidden" id="btn-pair" onclick="togglePairMode()">👥 זוג</button>
+  </div>
+
+  <div class="hand-section">
+    <div class="hand-label" id="hand-label">היד שלך</div>
+    <div class="hand-cards" id="hand-cards"></div>
+  </div>
+</div>
+
+<!-- ===== ACE MODAL ===== -->
+<div class="ace-modal" id="ace-modal">
+  <h3>🎴 אס — בחר ערך</h3>
+  <div class="ace-options">
+    <button class="ace-opt" onclick="chooseAce(1)">1</button>
+    <button class="ace-opt" onclick="chooseAce(14)">14</button>
+  </div>
+</div>
+
+<!-- ===== BATTLE RESULT ===== -->
+<div class="result-overlay" id="result-overlay">
+  <div class="result-text" id="result-text"></div>
+  <div class="result-cards" id="result-cards"></div>
+  <div class="result-detail" id="result-detail"></div>
+  <button class="btn-continue" onclick="continueAfterResult()">המשך ▶</button>
+</div>
+
+<!-- ===== SPY OVERLAY ===== -->
+<div class="spy-overlay" id="spy-overlay">
+  <h3 style="font-family:'Secular One',sans-serif;font-size:1.3rem;">👁️ ריגול!</h3>
+  <p id="spy-text" style="color:var(--text-secondary);"></p>
+  <div class="spy-card-row" id="spy-cards"></div>
+  <button class="btn-continue" onclick="document.getElementById('spy-overlay').classList.remove('active');">הבנתי 👍</button>
+</div>
+
+<!-- ===== GAME OVER ===== -->
+<div class="screen" id="gameover-screen">
+  <div class="confetti-box" id="confetti"></div>
+  <div class="go-title">🏆 סוף המשחק! 🏆</div>
+  <div class="go-winner" id="go-winner"></div>
+  <div class="go-score" id="go-score"></div>
+  <button class="btn-primary" style="width:min(350px,80vw);margin-top:10px;" onclick="backToMenu()">🔄 משחק חדש</button>
+</div>
+
+<script>
+// ================= JOKER DEFINITIONS =================
+const ALL_JOKERS = [
+  // Common (12)
+  {id:1,name:'שריון',icon:'🛡️',desc:'קלפים נמוכים (1-4) מקבלים +3',rarity:'common',type:'passive'},
+  {id:2,name:'כתר',icon:'👑',desc:'קלפי פנים (J/Q/K) מקבלים +2',rarity:'common',type:'passive'},
+  {id:3,name:'זוגי',icon:'🎲',desc:'קלפים זוגיים מקבלים +2',rarity:'common',type:'passive'},
+  {id:4,name:'אי-זוגי',icon:'🎯',desc:'קלפים אי-זוגיים מקבלים +2',rarity:'common',type:'passive'},
+  {id:5,name:'בולדוזר',icon:'🚜',desc:'קלפים 10-K מקבלים +1, ניצחון בהפרש 5+ = קלף נוסף ליריב',rarity:'common',type:'passive'},
+  {id:6,name:'צב',icon:'🐢',desc:'אחרי הפסד, הקלף הבא מקבל +2',rarity:'common',type:'passive'},
+  {id:7,name:'מאזניים',icon:'⚖️',desc:'בתיקו — מנצח אוטומטית',rarity:'common',type:'passive'},
+  {id:8,name:'מגנט',icon:'🧲',desc:'קלפי לב ♥ מקבלים +3',rarity:'common',type:'passive'},
+  {id:9,name:'ברזל',icon:'⚔️',desc:'קלפי עלה ♠ מקבלים +3',rarity:'common',type:'passive'},
+  {id:10,name:'אור',icon:'💎',desc:'קלפי יהלום ♦ מקבלים +3',rarity:'common',type:'passive'},
+  {id:11,name:'תלתן',icon:'🍀',desc:'קלפי תלתן ♣ מקבלים +3',rarity:'common',type:'passive'},
+  {id:12,name:'מהיר',icon:'⚡',desc:'הקלף הראשון שלך במשחק מקבל +5',rarity:'common',type:'passive'},
+  // Rare (10)
+  {id:13,name:'מרגל',icon:'👁️',desc:'רואה קלף אחד של היריב בתחילת הסיבוב',rarity:'rare',type:'passive'},
+  {id:14,name:'נקמה',icon:'🔥',desc:'אחרי הפסד, הקלף הבא מקבל +4',rarity:'rare',type:'passive'},
+  {id:15,name:'רצף',icon:'🔗',desc:'ניצחון שני ברצף +1, שלישי +2, רביעי +3...',rarity:'rare',type:'passive'},
+  {id:16,name:'גנב',icon:'🤏',desc:'ניצחון = גונב קלף אקראי מיד היריב',rarity:'rare',type:'passive'},
+  {id:17,name:'ערפל',icon:'🌫️',desc:'היריב לא רואה מה שמת עד שגם הוא בחר',rarity:'rare',type:'passive'},
+  {id:18,name:'מראה',icon:'🪞',desc:'פעם אחת — הקלף שלך מעתיק ערך היריב +1',rarity:'rare',type:'active',used:false},
+  {id:19,name:'שעון חול',icon:'⏳',desc:'אם אותו מספר קלפים ביד, כל הקלפים שלך +1',rarity:'rare',type:'passive'},
+  {id:20,name:'חומה',icon:'🧱',desc:'הפסד — 50% שהיריב לא מקבל את הקלפים',rarity:'rare',type:'passive'},
+  {id:21,name:'סוחר',icon:'🤝',desc:'בתחילת המשחק, מחליף קלף עם היריב',rarity:'rare',type:'passive'},
+  {id:22,name:'אס בשרוול',icon:'🎩',desc:'אסים תמיד = 14',rarity:'rare',type:'passive'},
+  // Legendary (6)
+  {id:23,name:'פניקס',icon:'🐦',desc:'2 קלפים או פחות = שולף 3 חדשים (פעם אחת)',rarity:'legendary',type:'active',used:false},
+  {id:24,name:'מהפך',icon:'🔄',desc:'פעם אחת — הופך הפסד לניצחון',rarity:'legendary',type:'active',used:false},
+  {id:25,name:'אינפיניטי',icon:'♾️',desc:'מכפיל אפקט של ג\'וקר אחר שלך',rarity:'legendary',type:'passive'},
+  {id:26,name:'כאוס',icon:'🌀',desc:'כל סיבוב, שני קלפים ביד מחליפים ערכים',rarity:'legendary',type:'passive'},
+  {id:27,name:'צל',icon:'👤',desc:'מעתיק ג\'וקר אקראי של היריב',rarity:'legendary',type:'passive'},
+  {id:28,name:'כוח עליון',icon:'💫',desc:'הקלף הנמוך ביותר ביד הופך ל-15',rarity:'legendary',type:'passive'},
+  // Element (2)
+  {id:29,name:'שליטת יסודות',icon:'🌍',desc:'קלפי אלמנט +3 נוסף ואפקט כפול',rarity:'element',type:'passive'},
+  {id:30,name:'סופה',icon:'🌊',desc:'קלף אלמנט = שולף קלף נוסף',rarity:'element',type:'passive'},
+];
+
+// ================= CARD / DECK DEFINITIONS =================
+const SUITS = ['heart','diamond','spade','club'];
+const SUIT_ICONS = {heart:'♥',diamond:'♦',spade:'♠',club:'♣'};
+const SUIT_COLORS = {heart:'var(--suit-heart)',diamond:'var(--suit-diamond)',spade:'var(--suit-spade)',club:'var(--suit-club)'};
+const FACE_NAMES = {11:'J',12:'Q',13:'K'};
+const ELEMENTS = ['fire','water','ice','wind'];
+const ELEM_ICONS = {fire:'🔥',water:'💧',ice:'❄️',wind:'🌪️'};
+const ELEM_BEATS = {fire:'ice',ice:'wind',wind:'water',water:'fire'};
+const ELEM_COLORS = {fire:'card-fire',water:'card-water',ice:'card-ice',wind:'card-wind'};
+
+function createDeck() {
+  let deck = [], id = 0;
+  for (let suit of SUITS) {
+    for (let v = 1; v <= 13; v++) {
+      deck.push({id:id++, type:'normal', suit, value:v});
+    }
+  }
+  for (let elem of ELEMENTS) {
+    deck.push({id:id++, type:'element', element:elem, value:7});
+    deck.push({id:id++, type:'element', element:elem, value:7});
+  }
+  return shuffle(deck);
+}
+
+function shuffle(a) {
+  for (let i=a.length-1;i>0;i--) { let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+
+// ================= GAME STATE =================
+let G = {};
+let mode = 'local'; // 'local' or 'online'
+let onlineRole = 'create';
+let roomCode = '';
+let pollInterval = null;
+let draftSelection = null;
+
+function initState(p1name, p2name) {
+  const deck = createDeck();
+  G = {
+    deck,
+    players: [
+      {name:p1name, hand:[], jokers:[], wins:0, streak:0, lastLost:false, blind:false, firstPlay:true, phoenixUsed:false, mirrorUsed:false, flipUsed:false},
+      {name:p2name, hand:[], jokers:[], wins:0, streak:0, lastLost:false, blind:false, firstPlay:true, phoenixUsed:false, mirrorUsed:false, flipUsed:false}
+    ],
+    round: 0,
+    phase: 'draft', // draft, play, gameover
+    currentDrafter: 0,
+    draftPool: [],
+    draftRound: 0, // 0-5 (6 picks total, alternating)
+    selectedCards: [null, null], // selected card(s) per player for current round
+    pairMode: false,
+    secondPairCard: null,
+    aceChoiceNeeded: false,
+    aceCard: null,
+    aceCallback: null,
+    turnPlayer: 0, // who is choosing now (in local hot-seat)
+    bothChosen: false,
+    isOnline: false,
+  };
+}
+
+// ================= MENU =================
+function setMode(m) {
+  mode = m;
+  document.getElementById('mode-local').classList.toggle('selected', m==='local');
+  document.getElementById('mode-online').classList.toggle('selected', m==='online');
+  document.getElementById('names-card').classList.toggle('hidden', m==='online');
+  document.getElementById('online-card').classList.toggle('hidden', m==='local');
+  document.getElementById('btn-start-local').classList.toggle('hidden', m==='online');
+}
+
+function setRole(r) {
+  onlineRole = r;
+  document.getElementById('role-create').classList.toggle('selected', r==='create');
+  document.getElementById('role-join').classList.toggle('selected', r==='join');
+  document.getElementById('create-section').classList.toggle('hidden', r!=='create');
+  document.getElementById('join-section').classList.toggle('hidden', r!=='join');
+}
+
+// ================= ONLINE MULTIPLAYER (Persistent Storage) =================
+async function storageSet(key, val, shared=true) {
+  try { return await window.storage.set(key, JSON.stringify(val), shared); } catch(e) { return null; }
+}
+async function storageGet(key, shared=true) {
+  try { const r = await window.storage.get(key, shared); return r ? JSON.parse(r.value) : null; } catch(e) { return null; }
+}
+async function storageDel(key, shared=true) {
+  try { return await window.storage.delete(key, shared); } catch(e) { return null; }
+}
+
+function generateCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = '';
+  for (let i=0;i<5;i++) code += chars[Math.floor(Math.random()*chars.length)];
+  return code;
+}
+
+async function createRoom() {
+  const name = document.getElementById('online-name').value.trim() || 'שחקן 1';
+  roomCode = generateCode();
+  
+  await storageSet('room:'+roomCode, {
+    host: name,
+    guest: null,
+    state: null,
+    phase: 'waiting',
+    lastUpdate: Date.now()
+  });
+  
+  document.getElementById('room-code-display').textContent = roomCode;
+  document.getElementById('room-created').classList.remove('hidden');
+  
+  // Poll for guest
+  pollInterval = setInterval(async () => {
+    const room = await storageGet('room:'+roomCode);
+    if (room && room.guest) {
+      clearInterval(pollInterval);
+      document.getElementById('online-status').textContent = `${room.guest} הצטרף!`;
+      setTimeout(() => startOnlineGame(room.host, room.guest, 0), 1000);
+    }
+  }, 1500);
+}
+
+async function joinRoom() {
+  const name = document.getElementById('join-name').value.trim() || 'שחקן 2';
+  const code = document.getElementById('room-code-input').value.trim().toUpperCase();
+  if (code.length < 4) { document.getElementById('join-status').textContent = 'קוד קצר מדי'; return; }
+  
+  roomCode = code;
+  const room = await storageGet('room:'+roomCode);
+  if (!room) {
+    document.getElementById('join-status').textContent = 'חדר לא נמצא ❌';
+    return;
+  }
+  if (room.guest) {
+    document.getElementById('join-status').textContent = 'החדר מלא ❌';
+    return;
+  }
+  
+  room.guest = name;
+  room.phase = 'starting';
+  await storageSet('room:'+roomCode, room);
+  
+  document.getElementById('join-status').textContent = 'מתחבר... ✓';
+  setTimeout(() => startOnlineGame(room.host, name, 1), 1000);
+}
+
+async function startOnlineGame(p1name, p2name, myIndex) {
+  G.isOnline = true;
+  G.myIndex = myIndex;
+  initState(p1name, p2name);
+  
+  // Host creates the deck + draft pool
+  if (myIndex === 0) {
+    setupDraft();
+    await syncState();
+  } else {
+    // Guest waits for state
+    await waitForState();
+  }
+  
+  showScreen('draft-screen');
+  renderDraft();
+}
+
+async function syncState() {
+  if (!G.isOnline) return;
+  const room = await storageGet('room:'+roomCode) || {};
+  room.state = {
+    deck: G.deck.map(c=>c.id),
+    players: G.players.map(p=>({name:p.name, jokers:p.jokers.map(j=>j.id), wins:p.wins, hand:p.hand.map(c=>c.id)})),
+    draftPool: G.draftPool.map(j=>j.id),
+    draftRound: G.draftRound,
+    currentDrafter: G.currentDrafter,
+    round: G.round,
+    phase: G.phase,
+    selectedCards: G.selectedCards,
+    turnPlayer: G.turnPlayer,
+  };
+  room.lastUpdate = Date.now();
+  await storageSet('room:'+roomCode, room);
+}
+
+async function waitForState() {
+  // Simple poll
+  for (let i = 0; i < 30; i++) {
+    const room = await storageGet('room:'+roomCode);
+    if (room && room.state) {
+      applyRemoteState(room.state);
+      return;
+    }
+    await new Promise(r => setTimeout(r, 1000));
+  }
+}
+
+function applyRemoteState(rs) {
+  // Reconstruct full state from IDs — simplified, apply key fields
+  G.draftRound = rs.draftRound;
+  G.currentDrafter = rs.currentDrafter;
+  G.round = rs.round;
+  G.phase = rs.phase;
+  G.turnPlayer = rs.turnPlayer;
+}
+
+// ================= LOCAL GAME =================
+function startLocalGame() {
+  const p1 = document.getElementById('p1name').value.trim() || 'שחקן 1';
+  const p2 = document.getElementById('p2name').value.trim() || 'שחקן 2';
+  G.isOnline = false;
+  initState(p1, p2);
+  setupDraft();
+  showScreen('draft-screen');
+  renderDraft();
+}
+
+// ================= SCREEN MGMT =================
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ================= DRAFT =================
+function setupDraft() {
+  // Pick 10 random jokers from 30
+  const pool = shuffle([...ALL_JOKERS]).slice(0, 10);
+  G.draftPool = pool.map(j => ({...j, takenBy: -1}));
+  G.draftRound = 0;
+  G.currentDrafter = 0;
+  // Deal 5 cards each
+  for (let p of G.players) {
+    p.hand = [];
+    for (let i=0;i<5;i++) p.hand.push(G.deck.pop());
+  }
+}
+
+function renderDraft() {
+  const drafter = G.players[G.currentDrafter];
+  document.getElementById('draft-turn').textContent = `תור של: ${drafter.name}`;
+  
+  // Render pool
+  const pool = document.getElementById('draft-pool');
+  pool.innerHTML = '';
+  for (let j of G.draftPool) {
+    const div = document.createElement('div');
+    const taken = j.takenBy >= 0;
+    const rarityClass = 'rarity-' + j.rarity;
+    const rarityLabel = {common:'נפוץ',rare:'נדיר',legendary:'אגדי',element:'אלמנט'}[j.rarity];
+    
+    div.className = `joker-card${taken?' taken':''}${draftSelection===j.id?' selected':''}`;
+    div.innerHTML = `
+      <div class="joker-rarity ${rarityClass}">${rarityLabel}</div>
+      <div class="joker-icon">${j.icon}</div>
+      <div class="joker-name">${j.name}</div>
+      <div class="joker-desc">${j.desc}</div>`;
+    
+    if (!taken) {
+      div.onclick = () => {
+        draftSelection = j.id;
+        renderDraft();
+      };
+    }
+    pool.appendChild(div);
+  }
+  
+  // My picks
+  const picks = document.getElementById('draft-picks');
+  picks.innerHTML = '';
+  const myJokers = G.players[G.currentDrafter].jokers;
+  for (let i=0;i<3;i++) {
+    const slot = document.createElement('div');
+    slot.className = `draft-pick-slot${myJokers[i]?' filled':''}`;
+    slot.textContent = myJokers[i] ? myJokers[i].icon : (i+1);
+    picks.appendChild(slot);
+  }
+  
+  document.getElementById('btn-draft-confirm').disabled = !draftSelection;
+}
+
+function confirmDraft() {
+  if (!draftSelection) return;
+  
+  const joker = G.draftPool.find(j=>j.id===draftSelection);
+  joker.takenBy = G.currentDrafter;
+  G.players[G.currentDrafter].jokers.push({...joker});
+  draftSelection = null;
+  G.draftRound++;
+  
+  if (G.draftRound >= 6) {
+    // Draft done — start game
+    startBattle();
+    return;
+  }
+  
+  // Alternate: 0,1,1,0,0,1
+  const order = [0,1,1,0,0,1];
+  G.currentDrafter = order[G.draftRound];
+  
+  // Hot-seat transition for draft
+  if (!G.isOnline) {
+    showHotseatTransition(G.currentDrafter, 'בחר ג\'וקר מהמאגר', () => {
+      renderDraft();
+    });
+  } else {
+    renderDraft();
+    syncState();
+  }
+}
+
+// ================= HOT SEAT TRANSITION =================
+let hotseatCallback = null;
+
+function showHotseatTransition(playerIdx, hint, callback) {
+  const p = G.players[playerIdx];
+  document.getElementById('transition-name').textContent = p.name;
+  document.getElementById('transition-name').style.color = playerIdx===0?'var(--crimson)':'var(--sky)';
+  document.getElementById('transition-hint').textContent = hint || 'העבירו את המכשיר ולחצו כשמוכנים';
+  document.getElementById('hotseat-transition').classList.add('active');
+  hotseatCallback = callback;
+}
+
+function revealTurn() {
+  document.getElementById('hotseat-transition').classList.remove('active');
+  if (hotseatCallback) { hotseatCallback(); hotseatCallback = null; }
+}
+
+// ================= BATTLE GAME =================
+function startBattle() {
+  G.phase = 'play';
+  G.round = 0;
+  G.turnPlayer = 0;
+  G.selectedCards = [null, null];
+  G.pairMode = false;
+  
+  // Apply start-of-game joker effects
+  applyStartJokers();
+  
+  showScreen('game-screen');
+  
+  if (!G.isOnline) {
+    showHotseatTransition(0, 'בחר קלף לקרב!', () => renderBattle());
+  } else {
+    renderBattle();
+  }
+}
+
+function applyStartJokers() {
+  for (let pi=0;pi<2;pi++) {
+    const p = G.players[pi];
+    const opp = G.players[1-pi];
+    
+    // Trader: swap one random card
+    if (hasJoker(pi,'סוחר') && opp.hand.length>0 && p.hand.length>0) {
+      const myIdx = Math.floor(Math.random()*p.hand.length);
+      const oppIdx = Math.floor(Math.random()*opp.hand.length);
+      [p.hand[myIdx], opp.hand[oppIdx]] = [opp.hand[oppIdx], p.hand[myIdx]];
+    }
+    
+    // Shadow: copy random opponent joker
+    if (hasJoker(pi,'צל') && opp.jokers.length>0) {
+      const copied = opp.jokers[Math.floor(Math.random()*opp.jokers.length)];
+      p.jokers.push({...copied, id:100+copied.id, name:copied.name+' (צל)'});
+    }
+  }
+}
+
+function hasJoker(pi, name) {
+  return G.players[pi].jokers.some(j=>j.name.startsWith(name));
+}
+
+function getJoker(pi, name) {
+  return G.players[pi].jokers.find(j=>j.name.startsWith(name));
+}
+
+function hasJokerMultiplied(pi, name) {
+  // Check infinity doubling
+  const has = hasJoker(pi, name);
+  const infinity = hasJoker(pi, 'אינפיניטי');
+  return has ? (infinity ? 2 : 1) : 0;
+}
+
+// ================= RENDER BATTLE =================
+function renderBattle() {
+  const tp = G.turnPlayer;
+  const p = G.players[tp];
+  const opp = G.players[1-tp];
+  
+  // Scores
+  document.getElementById('sname1').textContent = G.players[0].name;
+  document.getElementById('sname2').textContent = G.players[1].name;
+  document.getElementById('swins1').textContent = `${G.players[0].wins} ✓`;
+  document.getElementById('swins2').textContent = `${G.players[1].wins} ✓`;
+  document.getElementById('round-info').textContent = `סיבוב ${G.round+1} | חפיסה: ${G.deck.length}`;
+  document.getElementById('blabel1').textContent = G.players[0].name;
+  document.getElementById('blabel2').textContent = G.players[1].name;
+  
+  // Jokers bar
+  renderJokersBar(tp);
+  
+  // Apply chaos joker
+  if (hasJoker(tp, 'כאוס') && p.hand.length >= 2) {
+    const i1 = Math.floor(Math.random()*p.hand.length);
+    let i2 = Math.floor(Math.random()*p.hand.length);
+    while(i2===i1 && p.hand.length>1) i2 = Math.floor(Math.random()*p.hand.length);
+    if (p.hand[i1].type==='normal' && p.hand[i2].type==='normal') {
+      [p.hand[i1].value, p.hand[i2].value] = [p.hand[i2].value, p.hand[i1].value];
+    }
+  }
+  
+  // Supreme power joker
+  if (hasJoker(tp, 'כוח עליון') && p.hand.length > 0) {
+    let minIdx = 0;
+    for (let i=1;i<p.hand.length;i++) {
+      if (p.hand[i].value < p.hand[minIdx].value) minIdx = i;
+    }
+    p.hand[minIdx]._supremeOverride = 15;
+  }
+  
+  // Spy joker — show one of opp's cards
+  if (hasJoker(tp, 'מרגל') && opp.hand.length > 0 && !G._spyShownThisRound) {
+    G._spyShownThisRound = true;
+    const spyCard = opp.hand[0];
+    showSpy(opp.name, [spyCard]);
+  }
+  
+  // Battle slots
+  renderBattleSlots();
+  
+  // Hand
+  renderHand(p, tp);
+  
+  // Actions
+  document.getElementById('hand-label').textContent = `היד של ${p.name}`;
+  updateActionButtons();
+}
+
+function renderJokersBar(pi) {
+  const bar = document.getElementById('jokers-bar');
+  bar.innerHTML = '';
+  const p = G.players[pi];
+  for (let j of p.jokers) {
+    const isUsed = j.used;
+    const canActivate = j.type==='active' && !j.used;
+    const div = document.createElement('div');
+    div.className = `mini-joker${isUsed?' used':''}${canActivate?' activatable':''}`;
+    div.innerHTML = `<span>${j.icon}</span><span>${j.name}</span>`;
+    if (canActivate) {
+      div.onclick = () => activateJoker(pi, j);
+    }
+    bar.appendChild(div);
+  }
+}
+
+function activateJoker(pi, joker) {
+  // For now, active jokers are used during resolution, not manually
+  // Mirror and Flip are auto-triggered or we can add manual trigger later
+  announce(`${joker.icon} ${joker.name} יופעל אוטומטית בקרב!`);
+}
+
+function renderBattleSlots() {
+  const s1 = document.getElementById('battle-p1');
+  const s2 = document.getElementById('battle-p2');
+  
+  // Show card backs for chosen cards
+  if (G.selectedCards[0]) {
+    s1.className = 'battle-slot filled';
+    s1.innerHTML = '<div class="card-back"></div><span class="slot-label">'+G.players[0].name+'</span>';
+  } else {
+    s1.className = 'battle-slot';
+    s1.innerHTML = '<span style="color:var(--text-dim);">?</span><span class="slot-label">'+G.players[0].name+'</span>';
+  }
+  if (G.selectedCards[1]) {
+    s2.className = 'battle-slot filled';
+    s2.innerHTML = '<div class="card-back"></div><span class="slot-label">'+G.players[1].name+'</span>';
+  } else {
+    s2.className = 'battle-slot';
+    s2.innerHTML = '<span style="color:var(--text-dim);">?</span><span class="slot-label">'+G.players[1].name+'</span>';
+  }
+}
+
+function renderHand(player, pi) {
+  const container = document.getElementById('hand-cards');
+  container.innerHTML = '';
+  
+  const sorted = [...player.hand].sort((a,b) => {
+    if (a.type!==b.type) return a.type==='element'?1:-1;
+    return a.value - b.value;
+  });
+  
+  for (let card of sorted) {
+    const el = createCardElement(card, pi, false);
+    el.onclick = () => selectCard(card, pi);
+    container.appendChild(el);
+  }
+}
+
+function createCardElement(card, ownerIdx, small) {
+  const div = document.createElement('div');
+  
+  if (card.type === 'normal') {
+    const suitClass = 'card-' + card.suit;
+    div.className = `card ${suitClass}`;
+    
+    const displayVal = card._supremeOverride ? '★' : (FACE_NAMES[card.value] || card.value);
+    const suitIcon = SUIT_ICONS[card.suit];
+    
+    div.innerHTML = `
+      <div class="card-suit">${suitIcon}</div>
+      <div class="card-value">${displayVal}</div>
+      <div class="card-suit-bl">${suitIcon}</div>`;
+    
+    // Show joker bonus
+    const bonus = calcBonus(card, ownerIdx);
+    if (bonus > 0) {
+      div.innerHTML += `<div class="card-bonus">+${bonus}</div>`;
+    }
+  } else {
+    // Element card
+    const elemClass = ELEM_COLORS[card.element];
+    div.className = `card ${elemClass}`;
+    div.innerHTML = `
+      <div class="card-value">${ELEM_ICONS[card.element]}</div>
+      <div class="card-label" style="font-size:0.65rem;">${card.element==='fire'?'אש':card.element==='water'?'מים':card.element==='ice'?'קרח':'רוח'}</div>`;
+    
+    const bonus = calcBonus(card, ownerIdx);
+    if (bonus > 0) {
+      div.innerHTML += `<div class="card-bonus">+${bonus}</div>`;
+    }
+  }
+  
+  return div;
+}
+
+function calcBonus(card, pi) {
+  let bonus = 0;
+  const p = G.players[pi];
+  const opp = G.players[1-pi];
+  const v = card._supremeOverride || card.value;
+  
+  const mult = (name) => hasJokerMultiplied(pi, name);
+  
+  if (card.type === 'normal') {
+    // Shield: low cards +3
+    if (v>=1 && v<=4) bonus += 3 * mult('שריון');
+    // Crown: face cards +2
+    if (v>=11 && v<=13) bonus += 2 * mult('כתר');
+    // Even +2
+    if (v%2===0) bonus += 2 * mult('זוגי');
+    // Odd +2
+    if (v%2!==0) bonus += 2 * mult('אי-זוגי');
+    // Bulldozer: 10-13 +1
+    if (v>=10) bonus += 1 * mult('בולדוזר');
+    // Suit bonuses
+    if (card.suit==='heart') bonus += 3 * mult('מגנט');
+    if (card.suit==='spade') bonus += 3 * mult('ברזל');
+    if (card.suit==='diamond') bonus += 3 * mult('אור');
+    if (card.suit==='club') bonus += 3 * mult('תלתן');
+    // Ace in sleeve
+    if (v===1 && hasJoker(pi,'אס בשרוול')) bonus += 13; // effectively 14
+    // Hourglass
+    if (hasJoker(pi,'שעון חול') && p.hand.length === opp.hand.length) bonus += 1 * mult('שעון חול');
+  }
+  
+  if (card.type === 'element') {
+    if (hasJoker(pi, 'שליטת יסודות')) bonus += 3;
+  }
+  
+  // Turtle/Revenge after loss
+  if (p.lastLost) {
+    bonus += 2 * mult('צב');
+    bonus += 4 * mult('נקמה');
+  }
+  
+  // Streak
+  if (p.streak >= 2 && hasJoker(pi,'רצף')) {
+    bonus += (p.streak - 1) * mult('רצף');
+  }
+  
+  // First play
+  if (p.firstPlay) bonus += 5 * mult('מהיר');
+  
+  // Supreme override
+  if (card._supremeOverride) bonus = 0; // already 15
+  
+  return bonus;
+}
+
+// ================= CARD SELECTION =================
+let currentSelection = null;
+let pairCard1 = null;
+
+function selectCard(card, pi) {
+  if (G.pairMode) {
+    selectPairCard(card);
+    return;
+  }
+  
+  currentSelection = card;
+  
+  // Highlight
+  document.querySelectorAll('.hand-cards .card').forEach(el => el.classList.remove('card-selected'));
+  const cards = document.querySelectorAll('.hand-cards .card');
+  const sorted = [...G.players[pi].hand].sort((a,b) => {
+    if (a.type!==b.type) return a.type==='element'?1:-1;
+    return a.value - b.value;
+  });
+  const idx = sorted.findIndex(c=>c.id===card.id);
+  if (cards[idx]) cards[idx].classList.add('card-selected');
+  
+  updateActionButtons();
+}
+
+function updateActionButtons() {
+  document.getElementById('btn-play').disabled = !currentSelection;
+  
+  // Check if pairs available
+  const p = G.players[G.turnPlayer];
+  const valueCounts = {};
+  for (let c of p.hand) {
+    if (c.type==='normal') {
+      valueCounts[c.value] = (valueCounts[c.value]||0)+1;
+    }
+  }
+  const hasPair = Object.values(valueCounts).some(v=>v>=2);
+  document.getElementById('btn-pair').classList.toggle('hidden', !hasPair || G.pairMode);
+}
+
+function togglePairMode() {
+  G.pairMode = !G.pairMode;
+  pairCard1 = null;
+  currentSelection = null;
+  document.querySelectorAll('.hand-cards .card').forEach(el => el.classList.remove('card-selected'));
+  
+  if (G.pairMode) {
+    announce('👥 בחר שני קלפים עם אותו ערך');
+    document.getElementById('btn-pair').textContent = '❌ ביטול זוג';
+  } else {
+    document.getElementById('btn-pair').textContent = '👥 זוג';
+  }
+  updateActionButtons();
+}
+
+function selectPairCard(card) {
+  if (card.type !== 'normal') { announce('❌ רק קלפים רגילים לזוג'); return; }
+  
+  if (!pairCard1) {
+    pairCard1 = card;
+    highlightCard(card);
+    announce(`נבחר ${FACE_NAMES[card.value]||card.value} — בחר את הזוג`);
+  } else {
+    if (card.id === pairCard1.id) return;
+    if (card.value !== pairCard1.value) {
+      announce('❌ חייב להיות אותו מספר!');
+      return;
+    }
+    currentSelection = {isPair:true, card1:pairCard1, card2:card};
+    highlightCard(card);
+    G.pairMode = false;
+    document.getElementById('btn-pair').textContent = '👥 זוג';
+    document.getElementById('btn-pair').classList.add('hidden');
+    updateActionButtons();
+    announce(`👥 זוג ${FACE_NAMES[card.value]||card.value} = ${card.value*2}!`);
+  }
+}
+
+function highlightCard(card) {
+  const sorted = [...G.players[G.turnPlayer].hand].sort((a,b) => {
+    if (a.type!==b.type) return a.type==='element'?1:-1;
+    return a.value - b.value;
+  });
+  const idx = sorted.findIndex(c=>c.id===card.id);
+  const cards = document.querySelectorAll('.hand-cards .card');
+  if (cards[idx]) cards[idx].classList.add('card-selected');
+}
+
+// ================= PLAY CARD =================
+function confirmPlay() {
+  if (!currentSelection) return;
+  
+  const tp = G.turnPlayer;
+  const p = G.players[tp];
+  
+  // Handle ace choice
+  if (!currentSelection.isPair && currentSelection.type==='normal' && currentSelection.value===1 && !hasJoker(tp,'אס בשרוול')) {
+    showAceChoice((val) => {
+      currentSelection._aceValue = val;
+      finalizePick();
+    });
+    return;
+  }
+  
+  finalizePick();
+}
+
+function finalizePick() {
+  const tp = G.turnPlayer;
+  const p = G.players[tp];
+  
+  // Store selection
+  G.selectedCards[tp] = currentSelection;
+  
+  // Remove from hand
+  if (currentSelection.isPair) {
+    p.hand = p.hand.filter(c => c.id !== currentSelection.card1.id && c.id !== currentSelection.card2.id);
+  } else {
+    p.hand = p.hand.filter(c => c.id !== currentSelection.id);
+  }
+  
+  currentSelection = null;
+  pairCard1 = null;
+  G.pairMode = false;
+  
+  if (!G.isOnline) {
+    // Local: switch to other player
+    if (G.turnPlayer === 0) {
+      G.turnPlayer = 1;
+      G._spyShownThisRound = false;
+      showHotseatTransition(1, 'בחר קלף לקרב!', () => renderBattle());
+    } else {
+      // Both chosen — resolve!
+      resolveBattle();
+    }
+  }
+}
+
+// ================= ACE CHOICE =================
+function showAceChoice(callback) {
+  G.aceCallback = callback;
+  document.getElementById('ace-modal').classList.add('active');
+}
+
+function chooseAce(val) {
+  document.getElementById('ace-modal').classList.remove('active');
+  if (G.aceCallback) { G.aceCallback(val); G.aceCallback = null; }
+}
+
+// ================= SPY =================
+function showSpy(targetName, cards) {
+  document.getElementById('spy-text').textContent = `קלף של ${targetName}:`;
+  const row = document.getElementById('spy-cards');
+  row.innerHTML = '';
+  for (let c of cards) {
+    row.appendChild(createCardElement(c, -1));
+  }
+  document.getElementById('spy-overlay').classList.add('active');
+}
+
+// ================= RESOLVE BATTLE =================
+function resolveBattle() {
+  const c1 = G.selectedCards[0];
+  const c2 = G.selectedCards[1];
+  
+  let val1 = calcFinalValue(c1, 0);
+  let val2 = calcFinalValue(c2, 1);
+  
+  // Element vs Element
+  let elemEffect1 = null, elemEffect2 = null;
+  const e1 = getElement(c1), e2 = getElement(c2);
+  if (e1 && e2) {
+    if (ELEM_BEATS[e1] === e2) { val1 = 12; val2 = 2; elemEffect1 = e1; }
+    else if (ELEM_BEATS[e2] === e1) { val2 = 12; val1 = 2; elemEffect2 = e2; }
+  }
+  
+  // Mirror joker (one-time)
+  for (let pi of [0,1]) {
+    const mj = getJoker(pi, 'מראה');
+    if (mj && !mj.used) {
+      const myVal = pi===0?val1:val2;
+      const oppVal = pi===0?val2:val1;
+      if (myVal < oppVal) {
+        mj.used = true;
+        const newVal = oppVal + 1;
+        if (pi===0) val1 = newVal; else val2 = newVal;
+      }
+    }
+  }
+  
+  // Balance joker (auto-win ties)
+  let balanceWinner = -1;
+  if (val1 === val2) {
+    if (hasJoker(0,'מאזניים') && !hasJoker(1,'מאזניים')) balanceWinner = 0;
+    else if (hasJoker(1,'מאזניים') && !hasJoker(0,'מאזניים')) balanceWinner = 1;
+  }
+  
+  let winner, resultText, detail = '';
+  
+  if (balanceWinner >= 0) {
+    winner = balanceWinner;
+    resultText = `⚖️ ${G.players[winner].name} מנצח בתיקו!`;
+    detail = 'ג\'וקר מאזניים הכריע!';
+  } else if (val1 > val2) {
+    winner = 0;
+    resultText = `🎉 ${G.players[0].name} מנצח!`;
+  } else if (val2 > val1) {
+    winner = 1;
+    resultText = `🎉 ${G.players[1].name} מנצח!`;
+  } else {
+    winner = -1;
+    resultText = '🤝 תיקו!';
+    detail = 'אף אחד לא מקבל נקודה';
+  }
+  
+  // Flip joker
+  if (winner >= 0) {
+    const loser = 1 - winner;
+    const flipJ = getJoker(loser, 'מהפך');
+    if (flipJ && !flipJ.used) {
+      flipJ.used = true;
+      winner = loser;
+      resultText = `🔄 מהפך! ${G.players[winner].name} הפך הפסד לניצחון!`;
+      detail = 'ג\'וקר מהפך הופעל!';
+    }
+  }
+  
+  // Wall joker
+  if (winner >= 0) {
+    const loser = 1 - winner;
+    if (hasJoker(loser, 'חומה') && Math.random() < 0.5) {
+      detail += ' 🧱 חומה! הניצחון לא נספר!';
+      winner = -1;
+    }
+  }
+  
+  // Apply results
+  if (winner >= 0) {
+    G.players[winner].wins++;
+    G.players[winner].streak++;
+    G.players[winner].lastLost = false;
+    G.players[1-winner].streak = 0;
+    G.players[1-winner].lastLost = true;
+    
+    // Thief joker
+    if (hasJoker(winner, 'גנב')) {
+      const opp = G.players[1-winner];
+      if (opp.hand.length > 0) {
+        const stolen = opp.hand.splice(Math.floor(Math.random()*opp.hand.length), 1)[0];
+        G.players[winner].hand.push(stolen);
+        detail += ` 🤏 ${G.players[winner].name} גנב קלף!`;
+      }
+    }
+    
+    // Bulldozer: extra card loss if diff >= 5
+    if (hasJoker(winner, 'בולדוזר') && Math.abs(val1-val2) >= 5) {
+      const opp = G.players[1-winner];
+      if (opp.hand.length > 0) {
+        opp.hand.splice(Math.floor(Math.random()*opp.hand.length), 1);
+        detail += ' 🚜 בולדוזר! היריב איבד קלף נוסף!';
+      }
+    }
+    
+    // Element effects
+    const winElem = winner===0 ? elemEffect1 : elemEffect2;
+    if (winElem) {
+      const loserP = G.players[1-winner];
+      const winnerP = G.players[winner];
+      const doubled = hasJoker(winner, 'שליטת יסודות');
+      
+      if (winElem === 'fire') {
+        const times = doubled ? 2 : 1;
+        for (let t=0;t<times;t++) { if(loserP.hand.length>0) loserP.hand.splice(Math.floor(Math.random()*loserP.hand.length),1); }
+        detail += ` 🔥 אש! היריב איבד ${doubled?2:1} קלפים!`;
+      } else if (winElem === 'water') {
+        const times = doubled ? 2 : 1;
+        for (let t=0;t<times;t++) { if(G.deck.length>0) winnerP.hand.push(G.deck.pop()); }
+        detail += ` 💧 מים! שלפת ${doubled?2:1} קלפים!`;
+      } else if (winElem === 'ice') {
+        loserP.blind = true;
+        detail += ' ❄️ קרח! היריב ישחק בעיוור!';
+      } else if (winElem === 'wind') {
+        if (loserP.hand.length>0) {
+          const ri = Math.floor(Math.random()*loserP.hand.length);
+          loserP.hand.splice(ri, 1);
+          if(G.deck.length>0) loserP.hand.push(G.deck.pop());
+          detail += ' 🌪️ רוח! קלף של היריב הוחלף!';
+        }
+      }
+    }
+    
+    // Storm joker: element = draw extra
+    if (winner >= 0) {
+      const sel = winner===0?c1:c2;
+      if (getElement(sel) && hasJoker(winner, 'סופה')) {
+        if(G.deck.length>0) G.players[winner].hand.push(G.deck.pop());
+        detail += ' 🌊 סופה! קלף נוסף!';
+      }
+    }
+  } else {
+    // Tie
+    G.players[0].lastLost = false;
+    G.players[1].lastLost = false;
+  }
+  
+  // First play done
+  G.players[0].firstPlay = false;
+  G.players[1].firstPlay = false;
+  
+  // Phoenix check
+  for (let pi of [0,1]) {
+    const phx = getJoker(pi, 'פניקס');
+    if (phx && !phx.used && G.players[pi].hand.length <= 2) {
+      phx.used = true;
+      for (let i=0;i<3;i++) { if(G.deck.length>0) G.players[pi].hand.push(G.deck.pop()); }
+      detail += ` 🐦 פניקס! ${G.players[pi].name} שלף 3 קלפים!`;
+    }
+  }
+  
+  // Refill hands to 5
+  for (let pi of [0,1]) {
+    while (G.players[pi].hand.length < 5 && G.deck.length > 0) {
+      G.players[pi].hand.push(G.deck.pop());
+    }
+  }
+  
+  // Show result
+  showResult(c1, c2, val1, val2, resultText, detail);
+}
+
+function getElement(sel) {
+  if (!sel) return null;
+  if (sel.isPair) return null;
+  if (sel.type === 'element') return sel.element;
+  return null;
+}
+
+function calcFinalValue(sel, pi) {
+  if (!sel) return 0;
+  
+  if (sel.isPair) {
+    const v1 = sel.card1.value + calcBonus(sel.card1, pi);
+    const v2 = sel.card2.value + calcBonus(sel.card2, pi);
+    return v1 + v2;
+  }
+  
+  let base = sel._supremeOverride || sel._aceValue || sel.value;
+  // Ace in sleeve
+  if (sel.type==='normal' && sel.value===1 && hasJoker(pi,'אס בשרוול')) base = 14;
+  
+  return base + calcBonus(sel, pi);
+}
+
+function showResult(c1, c2, val1, val2, resultText, detail) {
+  const overlay = document.getElementById('result-overlay');
+  document.getElementById('result-text').textContent = resultText;
+  document.getElementById('result-detail').textContent = detail;
+  
+  const cardsDiv = document.getElementById('result-cards');
+  cardsDiv.innerHTML = '';
+  
+  const wrap1 = document.createElement('div');
+  wrap1.className = 'result-card-wrap';
+  wrap1.innerHTML = `<div class="rname">${G.players[0].name}</div>`;
+  wrap1.appendChild(createResultCard(c1, 0));
+  wrap1.innerHTML += `<div class="rval">ערך: ${val1}</div>`;
+  
+  const vs = document.createElement('div');
+  vs.className = 'result-vs';
+  vs.textContent = 'VS';
+  
+  const wrap2 = document.createElement('div');
+  wrap2.className = 'result-card-wrap';
+  wrap2.innerHTML = `<div class="rname">${G.players[1].name}</div>`;
+  wrap2.appendChild(createResultCard(c2, 1));
+  wrap2.innerHTML += `<div class="rval">ערך: ${val2}</div>`;
+  
+  cardsDiv.appendChild(wrap1);
+  cardsDiv.appendChild(vs);
+  cardsDiv.appendChild(wrap2);
+  
+  overlay.classList.add('active');
+}
+
+function createResultCard(sel, pi) {
+  if (sel.isPair) {
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'display:flex;gap:5px;';
+    wrap.appendChild(createCardElement(sel.card1, pi));
+    wrap.appendChild(createCardElement(sel.card2, pi));
+    return wrap;
+  }
+  return createCardElement(sel, pi);
+}
+
+function continueAfterResult() {
+  document.getElementById('result-overlay').classList.remove('active');
+  
+  G.selectedCards = [null, null];
+  G.round++;
+  
+  // Clear supreme overrides
+  for (let p of G.players) {
+    for (let c of p.hand) delete c._supremeOverride;
+  }
+  
+  // Check game over
+  if (G.players[0].hand.length === 0 && G.players[1].hand.length === 0) {
+    endGame();
+    return;
+  }
+  if (G.deck.length === 0 && G.players[0].hand.length === 0 && G.players[1].hand.length === 0) {
+    endGame();
+    return;
+  }
+  
+  // Check if both have no cards but deck is empty
+  const totalCards = G.players[0].hand.length + G.players[1].hand.length + G.deck.length;
+  if (totalCards === 0) {
+    endGame();
+    return;
+  }
+  
+  // Next round
+  G.turnPlayer = 0;
+  G._spyShownThisRound = false;
+  
+  // Clear blind after one round
+  for (let p of G.players) {
+    if (p.blind) { p.blind = false; }
+  }
+  
+  if (!G.isOnline) {
+    showHotseatTransition(0, 'בחר קלף לקרב!', () => renderBattle());
+  } else {
+    renderBattle();
+  }
+}
+
+// ================= END GAME =================
+function endGame() {
+  const w1 = G.players[0].wins, w2 = G.players[1].wins;
+  let winnerText, scoreText;
+  
+  if (w1 > w2) {
+    winnerText = `🎉 ${G.players[0].name} מנצח!`;
+  } else if (w2 > w1) {
+    winnerText = `🎉 ${G.players[1].name} מנצח!`;
+  } else {
+    winnerText = '🤝 תיקו מושלם!';
+  }
+  
+  scoreText = `${G.players[0].name}: ${w1} ניצחונות | ${G.players[1].name}: ${w2} ניצחונות`;
+  
+  document.getElementById('go-winner').textContent = winnerText;
+  document.getElementById('go-winner').style.color = w1>w2?'var(--crimson)':w2>w1?'var(--sky)':'var(--gold)';
+  document.getElementById('go-score').textContent = scoreText;
+  
+  showScreen('gameover-screen');
+  spawnConfetti();
+}
+
+function spawnConfetti() {
+  const c = document.getElementById('confetti');
+  c.innerHTML = '';
+  const colors = ['#DC2626','#F59E0B','#10B981','#0EA5E9','#8B5CF6','#EC4899'];
+  for (let i=0;i<50;i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti-p';
+    p.style.left = Math.random()*100+'%';
+    p.style.background = colors[Math.floor(Math.random()*colors.length)];
+    p.style.width = (5+Math.random()*10)+'px';
+    p.style.height = (5+Math.random()*10)+'px';
+    p.style.borderRadius = Math.random()>0.5?'50%':'2px';
+    p.style.animationDuration = (2+Math.random()*3)+'s';
+    p.style.animationDelay = Math.random()*2+'s';
+    c.appendChild(p);
+  }
+}
+
+function backToMenu() {
+  showScreen('menu-screen');
+  if (pollInterval) clearInterval(pollInterval);
+}
+
+// ================= UTILS =================
+function announce(text) {
+  const el = document.getElementById('announce');
+  el.textContent = text;
+  el.className = 'announce';
+  void el.offsetWidth;
+  el.className = 'announce show';
+  setTimeout(()=>{ el.className='announce hidden'; }, 2200);
+}
+
+function toggleRules() {
+  document.getElementById('rules-modal').classList.toggle('active');
+}
+</script>
+</body>
+</html>
